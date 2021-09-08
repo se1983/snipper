@@ -3,10 +3,11 @@ use reqwest::header;
 use std::time::Duration;
 
 
-use crate::data::{resp_body, Config, req_body};
+use crate::data::{resp_body, req_body};
+use crate::Opts;
 
 
-fn http_client_factory(config: &Config) -> Result<reqwest::Client, Box<dyn Error>, > {
+fn http_client_factory(config: &Opts) -> Result<reqwest::Client, Box<dyn Error>, > {
     let mut headers = header::HeaderMap::new();
 
     let mut access_token = header::HeaderValue::from_str(
@@ -30,17 +31,17 @@ fn http_client_factory(config: &Config) -> Result<reqwest::Client, Box<dyn Error
 
 #[derive(Debug)]
 pub struct GitLabApi {
-    config: Config,
+    config: Opts,
     client: reqwest::Client,
 }
 
 impl GitLabApi {
-    pub(crate) fn new(config: Config) -> GitLabApi {
+    pub(crate) fn new(config: Opts) -> GitLabApi {
         let client = http_client_factory(&config).unwrap();
         GitLabApi { config, client }
     }
 
-    pub(crate) async fn create_snippet(&self, title: &str) -> Result<resp_body::SnippetResponse, Box<dyn Error>> {
+    pub async fn create_snippet(&self, title: &str) -> Result<resp_body::SnippetResponse, Box<dyn Error>> {
         let body = req_body::CreateSnippet::new(title);
         let body = serde_json::to_string(&body)?;
         let resp = self.client
@@ -52,8 +53,8 @@ impl GitLabApi {
         Ok(resp)
     }
 
-    pub async fn snippet_upload(&self, snipped_id: usize, file_name: &str, file_content: &str) -> Result<resp_body::SnippetResponse, Box<dyn Error>> {
-        let url = format!("{}/{}", self.config.snippet_url, snipped_id);
+    pub async fn snippet_upload(&self, snippet_id: usize, file_name: &str, file_content: &str) -> Result<resp_body::SnippetResponse, Box<dyn Error>> {
+        let url = format!("{}{}", self.config.snippet_url, snippet_id);
         let body = req_body::Update::new(file_name, file_content);
         let body = serde_json::to_string(&body)?;
         let resp = self.client

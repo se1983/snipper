@@ -1,3 +1,4 @@
+
 pub mod resp_body {
     use serde::{Serialize, Deserialize};
 
@@ -87,21 +88,5 @@ pub mod req_body {
     }
 }
 
-#[derive(Debug)]
-pub struct Config {
-    base_url: String,
-    pub(crate) snippet_url: String,
-    pub(crate) token: String,
-}
 
-impl Config {
-    pub fn new(token: &str) -> Config {
-        let base_url = "https://gitlab.in.strato.de/api/v4".to_string();
-        let snippet_url = format!("{}/snippets", &base_url);
-        Config {
-            token: token.to_string(),
-            base_url,
-            snippet_url,
-        }
-    }
-}
+
