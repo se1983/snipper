@@ -9,11 +9,11 @@ mod client;
 pub struct Opts {
     pub token: String,
     pub mode: String,
-    pub snippet_url: String,
+    pub url: String,
     #[clap(long)]
-    pub snippet_id: Option<usize>,
+    pub id: Option<usize>,
     #[clap(long)]
-    pub snippet_title: Option<String>,
+    pub title: Option<String>,
     #[clap(long)]
     pub file_path: Option<String>,
     pub file_content: Option<String>,

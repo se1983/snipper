@@ -41,11 +41,11 @@ impl GitLabApi {
     }
 
     pub async fn do_post(&self) -> Result<resp_body::SnippetResponse, Box<dyn Error>> {
-        let body = req_body::CreateSnippet::new(&self.config.snippet_title.as_ref().unwrap());
+        let body = req_body::CreateSnippet::new(&self.config.title.as_ref().unwrap());
         let body = serde_json::to_string(&body)?;
 
         let resp = self.client
-            .post(&self.config.snippet_url)
+            .post(&self.config.url)
             .body(body)
             .send()
             .await?;
@@ -54,12 +54,12 @@ impl GitLabApi {
 
     }
     pub async fn do_put(&self) -> Result<resp_body::SnippetResponse, Box<dyn Error>> {
-        let snippet_id = self.config.snippet_id.unwrap();
+        let snippet_id = self.config.id.unwrap();
         let file_name = self.config.file_path.as_ref().unwrap();
         let file_content = self.config.file_content.as_ref().unwrap();
         let file_content = file_content.as_str();
 
-        let url = format!("{}{}", self.config.snippet_url, snippet_id);
+        let url = format!("{}{}", self.config.url, snippet_id);
         let body = req_body::Update::new(&file_name, file_content);
         let body = serde_json::to_string(&body)?;
 
