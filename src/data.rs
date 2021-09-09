@@ -1,6 +1,5 @@
-
 pub mod resp_body {
-    use serde::{Serialize, Deserialize};
+    use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct File {
@@ -17,7 +16,7 @@ pub mod resp_body {
 }
 
 pub mod req_body {
-    use serde::{Serialize, Deserialize};
+    use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct CreateFile {

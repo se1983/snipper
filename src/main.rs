@@ -1,5 +1,6 @@
+use clap::Clap;
+
 use client::GitLabApi;
-use clap::{Clap};
 
 mod data;
 mod client;
@@ -27,7 +28,7 @@ async fn main() {
         "Create" => {
             let title = config.snippet_title.unwrap();
             api_client.create_snippet(title.as_str()).await.unwrap()
-        },
+        }
         "Update" => {
             let snippet_id = config.snippet_id.unwrap();
             let file_name = config.file_path.unwrap();
@@ -37,15 +38,14 @@ async fn main() {
             api_client.snippet_upload(
                 snippet_id,
                 file_name,
-                file_content
+                file_content,
             ).await.unwrap()
-        },
+        }
         _ => panic!("mode not accepted!")
     };
 
     let response_text = serde_json::to_string_pretty(&resp).unwrap();
     println!("{}", response_text);
-
 }
 
 
