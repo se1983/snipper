@@ -34,13 +34,14 @@ pub struct GitLabApi {
 }
 
 impl GitLabApi {
+
     pub(crate) fn new(config: Opts) -> GitLabApi {
         let client = http_client_factory(&config).unwrap();
         GitLabApi { config, client }
     }
 
-    pub async fn create_snippet(&self, title: &str) -> Result<resp_body::SnippetResponse, Box<dyn Error>> {
-        let body = req_body::CreateSnippet::new(title);
+    pub async fn do_post(&self) -> Result<resp_body::SnippetResponse, Box<dyn Error>> {
+        let body = req_body::CreateSnippet::new(&self.config.snippet_title.as_ref().unwrap());
         let body = serde_json::to_string(&body)?;
 
         let resp = self.client
@@ -50,13 +51,16 @@ impl GitLabApi {
             .await?;
 
         Ok(resp.json().await?)
-    }
 
-    pub async fn snippet_upload(
-        &self, snippet_id: usize, file_name: &str, file_content: &str
-    ) -> Result<resp_body::SnippetResponse, Box<dyn Error>> {
+    }
+    pub async fn do_put(&self) -> Result<resp_body::SnippetResponse, Box<dyn Error>> {
+        let snippet_id = self.config.snippet_id.unwrap();
+        let file_name = self.config.file_path.as_ref().unwrap();
+        let file_content = self.config.file_content.as_ref().unwrap();
+        let file_content = file_content.as_str();
+
         let url = format!("{}{}", self.config.snippet_url, snippet_id);
-        let body = req_body::Update::new(file_name, file_content);
+        let body = req_body::Update::new(&file_name, file_content);
         let body = serde_json::to_string(&body)?;
 
         let resp = self.client
@@ -66,5 +70,8 @@ impl GitLabApi {
             .await?;
 
         Ok(resp.json().await?)
+
     }
+
+
 }

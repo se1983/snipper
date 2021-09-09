@@ -22,24 +22,18 @@ pub struct Opts {
 #[tokio::main]
 async fn main() {
     let config: Opts = Opts::parse();
-    let api_client = GitLabApi::new(config.clone());
+    let api = GitLabApi::new(config.clone());
 
     let resp = match config.mode.as_str() {
         "Create" => {
-            let title = config.snippet_title.unwrap();
-            api_client.create_snippet(title.as_str()).await.unwrap()
+            api.do_post()
+                .await
+                .unwrap_or_else(|err| panic!("Could not create the Snippet: [{}]", err));
         }
         "Update" => {
-            let snippet_id = config.snippet_id.unwrap();
-            let file_name = config.file_path.unwrap();
-            let file_name = file_name.as_str();
-            let file_content = config.file_content.unwrap();
-            let file_content = file_content.as_str();
-            api_client.snippet_upload(
-                snippet_id,
-                file_name,
-                file_content,
-            ).await.unwrap()
+            api.do_put()
+                .await
+                .unwrap_or_else(|err| panic!("Could not update the Snippet: [{}]", err));
         }
         _ => panic!("mode not accepted!")
     };
