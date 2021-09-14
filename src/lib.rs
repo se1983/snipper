@@ -57,7 +57,8 @@ impl GitLabApiClient for Api {}
 impl Api {
     pub fn new() -> Api {
         let config: Opts = Opts::parse();
-        let client = Api::create_client(&config).unwrap();
+        let client = Api::create_client(&config)
+            .unwrap_or_else(|err| panic!("Error on creating client: {}", err));
         Api { config, client }
     }
 
@@ -116,8 +117,10 @@ impl Api {
     ) -> Result<Snippet, Box<dyn std::error::Error>> {
         let body = json!({
             "files": [{
-                "file_path": &self.config.file_path.as_ref().unwrap(),
-                "content": &self.config.file_content.as_ref().unwrap(),
+                "file_path": &self.config.file_path.as_ref()
+                    .unwrap_or_else(||panic!("file-path has to be provided!")),
+                "content": &self.config.file_content.as_ref()
+                    .unwrap_or_else(||panic!("FILE_CONTENT has to be provided!")),
                 "action": "create"
             }]
         });
