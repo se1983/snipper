@@ -10,6 +10,8 @@ openssl = { version = "0.10", features = ["vendored"] }
 tokio = { version = "1", features = ["full"] }
 reqwest = {version = "0.11.4", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
+strum = { version = "0.21", features = ["derive"] }
+strum_macros = "0.21"
 serde_json = "1.0"
 chrono = "0.4"
 clap = "3.0.0-beta.4"
