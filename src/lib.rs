@@ -54,14 +54,13 @@ pub struct Api {
     client: Client,
 }
 
+impl GitLabApiClient for Api {}
+
 impl Api {
     pub fn new() -> Api {
         let config: Opts = Opts::parse();
-
-        Api {
-            client: Api::create_client(&config).unwrap(),
-            config,
-        }
+        let client = Api::create_client(&config).unwrap();
+        Api{config, client}
     }
 
     pub async fn get_snippet(&self) -> Result<Snippet, Box<dyn std::error::Error>> {
@@ -90,9 +89,8 @@ impl Api {
                 "files": [{
             "file_path": "init.txt",
             "content": &chrono::offset::Local::now().to_string()
-        }],
-
-    });
+            }]
+        });
 
         let resp = self.client
             .post(&self.config.url)
@@ -104,7 +102,6 @@ impl Api {
             resp.status().is_success(),
             "HTTP POST Error {}: {}", resp.status(), resp.text().await.unwrap()
         );
-
         let data = resp.json().await?;
         Ok(data)
     }
@@ -114,11 +111,9 @@ impl Api {
             "files": [{
                 "file_path": &self.config.file_path.as_ref().unwrap(),
                 "content": &self.config.file_content.as_ref().unwrap(),
-                "action": "create",
-        }],
-
-    });
-
+                "action": "create"
+            }]
+        });
         let url = format!("{}{}", &self.config.url, snippet_id);
         let resp = self.client
             .put(url)
@@ -133,8 +128,9 @@ impl Api {
 
         Ok(resp.json().await?)
     }
+}
 
-
+trait GitLabApiClient {
     fn create_client(config: &Opts) -> Result<Client, Box<dyn std::error::Error>, > {
         let mut headers = header::HeaderMap::new();
         let mut access_token = header::HeaderValue::from_str(
