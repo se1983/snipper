@@ -71,7 +71,8 @@ impl Api {
 
         let data: Vec<Snippet> = resp.json().await?;
         let snippet_title = self.config.title.clone();
-        match data.into_iter().filter(|s| s.title == snippet_title).next() {
+
+        match data.into_iter().find(|s| s.title == snippet_title) {
             Some(snippet) => Ok(snippet),
             None => Err(Box::new(std::io::Error::new(
                 std::io::ErrorKind::NotFound,
