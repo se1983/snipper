@@ -17,7 +17,7 @@ pub struct Opts {
     pub title: String,
     #[clap(long)]
     pub file_path: Option<String>,
-    #[clap(long, default_value="intern")]
+    #[clap(long, default_value = "intern")]
     pub visibility: String,
     pub url: String,
     pub token: String,
@@ -64,14 +64,22 @@ impl Api {
         }
     }
 
-    pub async fn get_snippet(&self) -> Result<Option<Snippet>, Box<dyn std::error::Error>> {
+    pub async fn get_snippet(&self) -> Result<Snippet, Box<dyn std::error::Error>> {
         let resp = self.client.get(&self.config.url).send().await?;
-        if !resp.status().is_success() {
-            panic!("HTTP Error {}: {}", resp.status(), resp.text().await.unwrap())
-        }
+        assert!(
+            resp.status().is_success(),
+            "HTTP GET Error {}: {}", resp.status(), resp.text().await.unwrap()
+        );
+
         let data: Vec<Snippet> = resp.json().await?;
         let snippet_title = self.config.title.clone();
-        Ok(data.into_iter().filter(|s| s.title == snippet_title).next())
+        match data.into_iter().filter(|s| s.title == snippet_title).next() {
+            Some(snippet) => Ok(snippet),
+            None => Err(Box::new(std::io::Error::new(
+                std::io::ErrorKind::NotFound,
+                format!("Could not find snippet: {}", self.config.title),
+            )))
+        }
     }
 
     pub async fn create_snippet(&self) -> Result<Snippet, Box<dyn std::error::Error>> {
@@ -92,9 +100,11 @@ impl Api {
             .send()
             .await?;
 
-        if !resp.status().is_success() {
-            panic!("HTTP Error {}: {}", resp.status(), resp.text().await.unwrap())
-        }
+        assert!(
+            resp.status().is_success(),
+            "HTTP POST Error {}: {}", resp.status(), resp.text().await.unwrap()
+        );
+
         let data = resp.json().await?;
         Ok(data)
     }
@@ -110,18 +120,18 @@ impl Api {
     });
 
         let url = format!("{}{}", &self.config.url, snippet_id);
-
         let resp = self.client
             .put(url)
             .json(&body)
             .send()
             .await?;
 
-        if !resp.status().is_success() {
-            panic!("HTTP Error {}: {}", resp.status(), resp.text().await.unwrap())
-        }
-        let snippet = resp.json().await?;
-        Ok(snippet)
+        assert!(
+            resp.status().is_success(),
+            "HTTP PUT Error {}: {}", resp.status(), resp.text().await.unwrap()
+        );
+
+        Ok(resp.json().await?)
     }
 
 
