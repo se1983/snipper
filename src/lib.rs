@@ -1,5 +1,4 @@
 use std::time::Duration;
-use std::fmt;
 use reqwest::{Client, header};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -19,12 +18,15 @@ pub struct Opts {
     pub file_content: Option<String>,
 
 }
-#[macro_use] extern crate strum_macros;
+
+#[macro_use]
+extern crate strum_macros;
+
 #[derive(EnumString, Debug, Clone)]
 pub enum Mode {
     Create,
     Update,
-    Get
+    Get,
 }
 
 
@@ -42,26 +44,6 @@ pub struct Snippet {
     web_url: String,
 }
 
-#[derive(Debug)]
-pub struct Error {
-    details: String
-}
-impl Error {
-    pub fn new(msg: String) -> Error{
-        Error{details: msg}
-    }
-}
-impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f,"{}",self.details)
-    }
-}
-impl std::error::Error for Error {
-    fn description(&self) -> &str {
-        &self.details
-    }
-}
-
 
 pub struct Api {
     pub config: Opts,
@@ -69,11 +51,10 @@ pub struct Api {
 }
 
 impl Api {
-
     pub fn new() -> Api {
         let config: Opts = Opts::parse();
 
-        Api{
+        Api {
             client: Api::create_client(&config).unwrap(),
             config,
         }
@@ -87,7 +68,6 @@ impl Api {
         let data: Vec<Snippet> = resp.json().await?;
         let snippet_title = self.config.title.clone();
         Ok(data.into_iter().filter(|s| s.title == snippet_title).next())
-
     }
 
     pub async fn create_snippet(&self) -> Result<Snippet, Box<dyn std::error::Error>> {
@@ -156,7 +136,6 @@ impl Api {
             .build()?;
         Ok(client)
     }
-
 }
 
 
