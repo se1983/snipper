@@ -53,6 +53,7 @@ pub struct Api {
 
 impl GitLabApiClient for Api {}
 
+#[allow(clippy::new_without_default)]
 impl Api {
     pub fn new() -> Api {
         let config: Opts = Opts::parse();
